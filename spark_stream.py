@@ -14,54 +14,46 @@ def create_keyspace(session):
 
     print("Keyspace created successfully!")
 
-
 def create_table(session):
-    session.execute("""
-    CREATE TABLE IF NOT EXISTS spark_streams.created_users (
-        id UUID PRIMARY KEY,
-        first_name TEXT,
-        last_name TEXT,
-        gender TEXT,
-        address TEXT,
-        post_code TEXT,
-        email TEXT,
-        username TEXT,
-        registered_date TEXT,
-        phone TEXT,
-        picture TEXT);
-    """)
-
-    print("Table created successfully!")
-
-
-def insert_data(session, **kwargs):
-    print("inserting data...")
-
-    user_id = kwargs.get('id')
-    first_name = kwargs.get('first_name')
-    last_name = kwargs.get('last_name')
-    gender = kwargs.get('gender')
-    address = kwargs.get('address')
-    postcode = kwargs.get('post_code')
-    email = kwargs.get('email')
-    username = kwargs.get('username')
-    dob = kwargs.get('dob')
-    registered_date = kwargs.get('registered_date')
-    phone = kwargs.get('phone')
-    picture = kwargs.get('picture')
-
     try:
         session.execute("""
-            INSERT INTO spark_streams.created_users(id, first_name, last_name, gender, address, 
-                post_code, email, username, dob, registered_date, phone, picture)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (user_id, first_name, last_name, gender, address,
-              postcode, email, username, dob, registered_date, phone, picture))
-        logging.info(f"Data inserted for {first_name} {last_name}")
-
+        CREATE TABLE IF NOT EXISTS person (
+            id UUID PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            gender TEXT,
+            address TEXT,
+            email TEXT,
+            phone TEXT,
+            cell TEXT,
+            dob DATE,
+            age INT,
+            registered_date DATE,
+            years_registered INT,
+            id_name TEXT,
+            id_value TEXT,
+            nationality TEXT,
+            picture TEXT
+        );
+        """)
+        print("Table created successfully")
     except Exception as e:
-        logging.error(f'could not insert data due to {e}')
+        logging.error("Error creating table:", e)
 
+def insert_data(session, data):
+    try:
+        prepared_insert = session.prepare("""
+        INSERT INTO person (
+            id, first_name, last_name, gender, address, email, phone, cell,
+            dob, age, registered_date, years_registered, id_name, id_value,
+            nationality, picture
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """)
+        for row in data:
+            session.execute(prepared_insert, row.values())
+        print("Data inserted successfully into Cassandra.")
+    except Exception as e:
+        logging.error("Error inserting data into Cassandra:", e)
 
 def create_spark_connection():
     s_conn = None

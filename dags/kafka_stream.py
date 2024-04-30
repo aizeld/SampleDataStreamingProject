@@ -19,21 +19,22 @@ def get_data():
 
 def format_data(res):
     data = {}
-    location = res['location']
-    data['id'] = uuid.uuid4()
+    
     data['first_name'] = res['name']['first']
     data['last_name'] = res['name']['last']
     data['gender'] = res['gender']
-    data['address'] = f"{str(location['street']['number'])} {location['street']['name']}, " \
-                      f"{location['city']}, {location['state']}, {location['country']}"
-    data['post_code'] = location['postcode']
+    data['address'] = f"{res['location']['street']['number']} {res['location']['street']['name']}, {res['location']['city']}, {res['location']['state']}, {res['location']['country']}"
     data['email'] = res['email']
-    data['username'] = res['login']['username']
-    data['dob'] = res['dob']['date']
-    data['registered_date'] = res['registered']['date']
     data['phone'] = res['phone']
+    data['cell'] = res['cell']
+    data['dob'] = res['dob']['date'][:10]
+    data['age'] = res['dob']['age']
+    data['registered_date'] = res['registered']['date'][:10]
+    data['years_registered'] = res['registered']['age']
+    data['id_name'] = res['id']['name']
+    data['id_value'] = res['id']['value']
+    data['nationality'] = res['nat']
     data['picture'] = res['picture']['medium']
-
     return data
 
 def stream_data():
