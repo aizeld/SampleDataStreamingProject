@@ -1,3 +1,0 @@
-#!C:\Users\Asilk\Desktop\Journey\Data Engineering\First\venv\Scripts\python.exe
-from spark import spark_admin
-spark_admin.main()
